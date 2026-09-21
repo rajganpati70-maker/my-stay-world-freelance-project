@@ -1,18 +1,26 @@
 {
+  "id": "com.anyrenting.app",
   "name": "AnyRenting Property Workspace",
   "short_name": "AnyRenting",
   "description": "Manage properties, leads and bookings from one workspace.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "background_color": "#0b1026",
   "theme_color": "#0b1026",
   "orientation": "portrait-primary",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "finance"],
   "icons": [
-    {
-      "src": "/public/assets/favicon.png",
-      "sizes": "1254x1254",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    { "src": "/public/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/public/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/public/assets/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Properties", "short_name": "Properties", "url": "/?view=properties" },
+    { "name": "Bookings", "short_name": "Bookings", "url": "/?view=bookings" },
+    { "name": "Leads", "short_name": "Leads", "url": "/?view=leads" }
   ]
 }

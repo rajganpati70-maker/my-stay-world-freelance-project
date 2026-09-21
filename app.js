@@ -28,6 +28,9 @@ const state = {
   modal: null
 };
 
+const initialView = new URLSearchParams(location.search).get("view");
+if (["overview", "properties", "bookings", "leads"].includes(initialView)) state.view = initialView;
+
 function setView(view) {
   state.view = view;
   render();
