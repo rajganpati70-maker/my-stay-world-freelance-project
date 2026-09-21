@@ -1,0 +1,9 @@
+services:
+  web:
+    image: python:3.13-slim
+    working_dir: /app
+    command: python3 server.py
+    volumes:
+      - .:/app
+    ports:
+      - "3000:5000"
