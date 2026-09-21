@@ -16,7 +16,8 @@ const icons = {
   bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9ZM10 21h4"/></svg>',
   arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   building: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 21V5l8-3 8 3v16M2 21h20M8 8h1M15 8h1M8 12h1M15 12h1M8 16h1M15 16h1M11 21v-4h2v4"/></svg>',
-  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/></svg>'
+  logout: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 17l5-5-5-5M15 12H3M21 19V5a2 2 0 0 0-2-2h-5"/></svg>',
+  download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12M7 11l5 5 5-5M4 21h16"/></svg>'
 };
 
 const state = {
@@ -27,6 +28,10 @@ const state = {
   bookings: JSON.parse(localStorage.getItem("anyrenting-bookings") || "[]"),
   modal: null
 };
+
+// The APK download link only makes sense on the website — inside the native app
+// the assets are bundled locally and there is no downloads/ directory.
+const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
 
 const initialView = new URLSearchParams(location.search).get("view");
 if (["overview", "properties", "bookings", "leads"].includes(initialView)) state.view = initialView;
@@ -101,6 +106,7 @@ function topbar() {
     <a class="mobile-brand" href="#" onclick="setView('overview'); return false;">${logo()}<span>AnyRenting</span></a>
     <div class="breadcrumb">Workspace <span>/</span> <strong>${state.view[0].toUpperCase() + state.view.slice(1)}</strong></div>
     <div class="top-actions">
+      ${isNativeApp ? "" : `<a class="icon-button" href="/downloads/AnyRenting-1.0.apk" download aria-label="Download the Android app" title="Download the Android app">${icons.download}</a>`}
       <button class="icon-button" aria-label="Notifications" onclick="toast('You are all caught up')">${icons.bell}<i class="notification-dot"></i></button>
       ${state.user ? `<div class="profile"><div class="avatar">${initials}</div><div class="profile-copy"><strong>${name}</strong><span>Property owner</span></div></div><button class="icon-button" aria-label="Log out" onclick="logout()">${icons.logout}</button>` : `<button class="btn btn-secondary btn-small" onclick="openModal('login')">Log in</button>`}
     </div>

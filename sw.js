@@ -1,4 +1,4 @@
-const CACHE = "anyrenting-shell-v2";
+const CACHE = "anyrenting-shell-v3";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -24,36 +24,19 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Network-first: always serve the freshest app when online, fall back to the cached
+// copy (and the cached app shell for navigations) when the device is offline.
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET" || !request.url.startsWith(self.location.origin)) return;
 
-  // Page navigations: try the network first so users get fresh content, then fall back
-  // to the cached app shell so the app still opens with no connection.
-  if (request.mode === "navigate") {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put("/index.html", copy));
-          return response;
-        })
-        .catch(() => caches.match("/index.html"))
-    );
-    return;
-  }
-
-  // Static assets: serve from cache instantly, then refresh the copy in the background.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
-          return response;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    fetch(request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(request, copy));
+        return response;
+      })
+      .catch(() => caches.match(request).then((cached) => cached || caches.match("/index.html")))
   );
 });
