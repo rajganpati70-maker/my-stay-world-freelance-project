@@ -24,19 +24,41 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Network-first: always serve the freshest app when online, fall back to the cached
-// copy (and the cached app shell for navigations) when the device is offline.
+// Navigations: network-first, so the freshest page is served when online and the
+// cached shell when offline.
+// Static assets: cached copy first (instant and always valid), refreshed in the
+// background for the next load. Never falls back to HTML for a script or stylesheet.
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET" || !request.url.startsWith(self.location.origin)) return;
 
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put("/index.html", copy)).catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => caches.match("/index.html").then((cached) => cached || Response.error()))
+    );
+    return;
+  }
+
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, copy));
-        return response;
-      })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match("/index.html")))
+    caches.match(request).then((cached) => {
+      const fresh = fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy)).catch(() => {});
+          }
+          return response;
+        })
+        .catch(() => cached || Response.error());
+      return cached || fresh;
+    })
   );
 });
